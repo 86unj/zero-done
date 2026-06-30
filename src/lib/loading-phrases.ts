@@ -1,0 +1,17 @@
+export const LOADING_PHRASES = [
+  "Reading your pitch with one eye open…",
+  "Consulting the Group Project Gods…",
+  "Running it through the lazy-o-meter…",
+  "Debating if this counts as participation…",
+  "Your teammate is pretending to think…",
+  "Cross-referencing with the syllabus…",
+  "Measuring vibes vs. effort…",
+  "Calculating minimum viable work done…",
+  "Checking if that's enough to skip lab…",
+  "Asking if peer review approves this energy…",
+  "Your pitch is in queue behind a nap…",
+  "Judging you (lovingly)…",
+  "Rotating excuses in 3… 2… 1…",
+  "Slacking professionally…",
+  "Verifying this isn't copy-paste from the group chat…",
+] as const;
