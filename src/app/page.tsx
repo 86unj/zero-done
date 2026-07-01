@@ -16,7 +16,7 @@ export default function Home() {
             <p className="text-lg sm:text-xl text-pixel-light/85 max-w-sm mx-auto leading-relaxed">
               You did nothing on your group project.{" "}<br />
               <span className="text-pixel-yellow">
-                Convince your teammate to do your share.
+                Convince your AI teammate to do your share.
               </span>
             </p>
             <div className="flex items-end justify-center gap-6 pt-1">
