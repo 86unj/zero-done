@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "@/components/layout/Footer";
 
-const FULLSCREEN_ROUTES = ["/showcase"];
+const FULLSCREEN_ROUTES = ["/showcase", "/qr"];
 
 export function ConditionalFooter() {
   const pathname = usePathname();
