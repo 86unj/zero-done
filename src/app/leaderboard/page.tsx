@@ -56,7 +56,6 @@ export default function LeaderboardPage() {
         <PageHeader
           icon={<PixelTrophy className="w-12 h-12" />}
           title="LEADERBOARD"
-          subtitle="Rankings only — no spoilers."
         />
 
         <div className="flex gap-2">
