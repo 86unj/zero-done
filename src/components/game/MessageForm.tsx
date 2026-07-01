@@ -101,6 +101,40 @@ export function MessageForm({
     started,
   );
 
+  const textarea = (
+    <div className="relative">
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value.slice(0, 150))}
+        disabled={loading || expired}
+        placeholder="Write your message..."
+        rows={isQuick ? 4 : 3}
+        enterKeyHint="send"
+        autoComplete="off"
+        autoCorrect="on"
+        spellCheck
+        autoFocus
+        className={`game-input w-full text-base leading-relaxed p-3 pr-14 disabled:opacity-50 ${
+          isQuick ? "min-h-[6.5rem]" : "min-h-[5.5rem]"
+        }`}
+        maxLength={150}
+      />
+      <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
+        <CharCounter current={message.length} />
+      </div>
+    </div>
+  );
+
+  const timer =
+    !loading && !expired ? (
+      <InputTimer
+        formatted={formatted}
+        isUrgent={isUrgent}
+        isCritical={isCritical}
+        progress={progress}
+      />
+    ) : null;
+
   const composer =
     timeUp && !message.trim() ? (
       <div className="space-y-3">
@@ -113,80 +147,95 @@ export function MessageForm({
       <PixelButton variant="cta" onClick={() => setStarted(true)} className="w-full">
         Start
       </PixelButton>
+    ) : isQuick ? (
+      <div className="space-y-3">
+        {timer}
+        {textarea}
+        <PixelButton
+          variant="cta"
+          onClick={submit}
+          disabled={loading || !message.trim() || expired}
+          className="hidden sm:flex w-full !py-3.5"
+        >
+          Send Message →
+        </PixelButton>
+        {error && <p className="text-pixel-red text-base">{error}</p>}
+      </div>
     ) : (
       <div className="space-y-3">
-        {!loading && !expired && (
-          <InputTimer
-            formatted={formatted}
-            isUrgent={isUrgent}
-            isCritical={isCritical}
-            progress={progress}
-          />
-        )}
+        {timer}
         <div className="flex gap-2 items-end">
-          <div className="relative flex-1">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, 150))}
-              disabled={loading || expired}
-              placeholder="Write your message..."
-              rows={3}
-              enterKeyHint="send"
-              autoComplete="off"
-              autoCorrect="on"
-              spellCheck
-              autoFocus
-              className="game-input text-base leading-relaxed p-3 pr-14 min-h-[5.5rem] disabled:opacity-50"
-              maxLength={150}
-            />
-            <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
-              <CharCounter current={message.length} />
-            </div>
-          </div>
+          <div className="flex-1">{textarea}</div>
           <PixelButton
             onClick={submit}
             disabled={loading || !message.trim() || expired}
             className="shrink-0 !px-3 !py-3 min-w-[3.25rem]"
             aria-label="Send message"
           >
-            {loading ? "…" : "→"}
+            →
           </PixelButton>
         </div>
-        {loading && (
-          <p
-            className="text-center text-pixel-light/60 text-base animate-pulse"
-            aria-live="polite"
-          >
-            {LOADING_PHRASES[loadingPhraseIndex]}
-          </p>
-        )}
         {error && <p className="text-pixel-red text-base">{error}</p>}
       </div>
     );
 
+  const showMobileCta =
+    isQuick && started && !loading && !(timeUp && !message.trim());
+
   return (
-    <div className="space-y-4">
-      {!isQuick && personalityName && (
-        <PersonalityBadge
-          personalityId={personality}
-          emoji={personalityEmoji}
-          name={personalityName}
-          tagline={personalityTagline}
-          variant="game"
-        />
+    <>
+      {loading && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--pixel-bg)]/90 backdrop-blur-[2px]"
+          aria-busy="true"
+        >
+          <p
+            className="text-center text-pixel-light/75 text-xl sm:text-2xl max-w-sm px-6 animate-pulse"
+            aria-live="polite"
+          >
+            {LOADING_PHRASES[loadingPhraseIndex]}
+          </p>
+        </div>
       )}
 
-      <ChatWindow
-        mode={mode}
-        teammateEmoji={chatEmoji}
-        teammateName={chatName}
-        teammateTagline={chatTagline}
-        situation={scenario}
-        situationMeta={
-          !started ? `150 characters · ${INPUT_TIME_LIMIT_SEC} seconds` : undefined
-        }
-        composer={composer}
-      />
-    </div>
+      {showMobileCta && (
+        <div className="fixed bottom-0 inset-x-0 z-40 p-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-[color:var(--pixel-bg)]/95 border-t-2 border-pixel-outline backdrop-blur-sm sm:hidden">
+          <div className="max-w-lg mx-auto">
+            <PixelButton
+              variant="cta"
+              onClick={submit}
+              disabled={!message.trim() || expired}
+              className="w-full !py-4"
+            >
+              Send Message →
+            </PixelButton>
+          </div>
+        </div>
+      )}
+
+      <div className={`space-y-4 ${showMobileCta ? "pb-[5.5rem] sm:pb-0" : ""}`}>
+        {!isQuick && personalityName && (
+          <PersonalityBadge
+            personalityId={personality}
+            emoji={personalityEmoji}
+            name={personalityName}
+            tagline={personalityTagline}
+            variant="game"
+          />
+        )}
+
+        <ChatWindow
+          mode={mode}
+          teammateEmoji={chatEmoji}
+          teammateName={chatName}
+          teammateTagline={chatTagline}
+          situation={scenario}
+          situationMeta={
+            !started ? `150 characters · ${INPUT_TIME_LIMIT_SEC} seconds` : undefined
+          }
+          composer={composer}
+        />
+      </div>
+    </>
   );
 }
