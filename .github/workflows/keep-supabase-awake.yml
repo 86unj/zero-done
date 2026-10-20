@@ -2,7 +2,11 @@ name: Keep Supabase Awake
 
 on:
   schedule:
-    - cron: "17 8 */3 * *"
+    # Free projects pause without a few database requests each day.
+    # GitHub often delays a single cron, so this fires three times.
+    - cron: "17 4 * * *"
+    - cron: "17 12 * * *"
+    - cron: "17 20 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -19,8 +23,11 @@ jobs:
         run: |
           test -n "$SUPABASE_URL"
           test -n "$SUPABASE_ANON_KEY"
-          curl --fail --silent --show-error \
-            --header "apikey: $SUPABASE_ANON_KEY" \
-            --header "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "${SUPABASE_URL%/}/rest/v1/submissions?select=id&limit=1" \
-            > /dev/null
+          for _ in 1 2 3; do
+            curl --fail --silent --show-error --max-time 20 \
+              --header "apikey: $SUPABASE_ANON_KEY" \
+              --header "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              --output /dev/null \
+              --write-out "supabase ping %{http_code}\n" \
+              "${SUPABASE_URL%/}/rest/v1/submissions?select=id&limit=1"
+          done
